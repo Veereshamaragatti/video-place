@@ -46,10 +46,10 @@ const Index = () => {
         currentStep++;
       } else {
         clearInterval(interval);
-        // Simulate completed processing with mock data
+        // Simulate completed processing with the actual processed video
         setTimeout(() => {
           setVideoData({
-            url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+            url: "/processed-video.mp4",
             transcript: generateMockTranscript(),
           });
           setState("completed");
@@ -84,7 +84,7 @@ const Index = () => {
       <div className="container mx-auto px-4 py-8">
         <header className="text-center mb-12">
           <h1 className="text-4xl md:text-6xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-4">
-            Vid Palace
+            Video Palace
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Transform your videos with AI-powered processing, interactive transcripts, and intelligent summaries
