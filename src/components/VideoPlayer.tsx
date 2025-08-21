@@ -91,128 +91,104 @@ export const VideoPlayer = ({ videoData }: VideoPlayerProps) => {
   const currentWord = getCurrentWord();
 
   return (
-    <div className="space-y-6">
+    <div className="flex gap-6 h-[80vh]">
       {/* Video Player */}
-      <Card className="glass overflow-hidden">
-        <div className="relative">
-          <video
-            ref={videoRef}
-            src={videoData.url}
-            controls
-            onTimeUpdate={handleTimeUpdate}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            className="w-full aspect-video bg-black"
-          >
-            Your browser does not support the video tag.
-          </video>
-          
-          {/* Custom Play Button Overlay */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <Button
-              onClick={togglePlayPause}
-              size="lg"
-              className="pointer-events-auto bg-black/50 hover:bg-black/70 border-2 border-white/20 backdrop-blur-sm"
+      <div className="flex-1">
+        <Card className="glass overflow-hidden h-full">
+          <div className="relative h-full">
+            <video
+              ref={videoRef}
+              src={videoData.url}
+              controls
+              onTimeUpdate={handleTimeUpdate}
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              className="w-full h-full bg-black object-contain"
             >
-              {isPlaying ? (
-                <Pause className="w-8 h-8" />
-              ) : (
-                <Play className="w-8 h-8 ml-1" />
-              )}
-            </Button>
-          </div>
-        </div>
-      </Card>
-
-      {/* Transcript Section */}
-      <Card className="glass">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold">Interactive Transcript</h3>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search transcript..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-64"
-              />
-            </div>
-          </div>
-
-          <ScrollArea className="h-64 custom-scrollbar">
-            <div className="space-y-1 p-4">
-              {(searchTerm ? filteredTranscript : videoData.transcript).map((item, index) => {
-                const isHighlighted = searchTerm && 
-                  item.word.toLowerCase().includes(searchTerm.toLowerCase());
-                const isCurrent = currentWord?.word === item.word && 
-                  currentWord?.start === item.start;
-                
-                return (
-                  <span
-                    key={`${item.word}-${item.start}-${index}`}
-                    className={`transcript-word ${
-                      isHighlighted ? 'highlighted' : ''
-                    } ${isCurrent ? 'current' : ''}`}
-                    onClick={() => handleWordClick(item.start)}
-                    title={`Jump to ${item.start.toFixed(1)}s`}
-                  >
-                    {item.word}{" "}
-                  </span>
-                );
-              })}
-            </div>
-          </ScrollArea>
-
-          {searchTerm && (
-            <div className="mt-4 text-sm text-muted-foreground">
-              Found {filteredTranscript.length} matching word{filteredTranscript.length !== 1 ? 's' : ''}
-            </div>
-          )}
-        </div>
-      </Card>
-
-      {/* Summary Section */}
-      <Card className="glass">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold">AI Summary</h3>
-            {!summary && (
+              Your browser does not support the video tag.
+            </video>
+            
+            {/* Custom Play Button Overlay */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <Button
-                onClick={generateSummary}
-                disabled={isGeneratingSummary}
-                className="bg-gradient-primary"
+                onClick={togglePlayPause}
+                size="lg"
+                className="pointer-events-auto bg-black/50 hover:bg-black/70 border-2 border-white/20 backdrop-blur-sm"
               >
-                {isGeneratingSummary ? (
-                  <>
-                    <Sparkles className="w-4 h-4 mr-2 animate-spin" />
-                    Generating...
-                  </>
+                {isPlaying ? (
+                  <Pause className="w-8 h-8" />
                 ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Generate Summary
-                  </>
+                  <Play className="w-8 h-8 ml-1" />
                 )}
               </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Transcript Sidebar */}
+      <div className="w-96">
+        <Card className="glass h-full bg-black/80 border-primary/20">
+          <div className="p-4 h-full flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white">Transcript</h3>
+              <Button size="sm" variant="ghost" className="text-white/60 hover:text-white">
+                <Search className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/60" />
+              <Input
+                placeholder="Search in video"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/60"
+              />
+            </div>
+
+            <ScrollArea className="flex-1 custom-scrollbar">
+              <div className="space-y-3 pr-4">
+                {(searchTerm ? filteredTranscript : videoData.transcript).map((item, index) => {
+                  const isHighlighted = searchTerm && 
+                    item.word.toLowerCase().includes(searchTerm.toLowerCase());
+                  const isCurrent = currentWord?.word === item.word && 
+                    currentWord?.start === item.start;
+                  
+                  const minutes = Math.floor(item.start / 60);
+                  const seconds = Math.floor(item.start % 60);
+                  const timestamp = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                  
+                  return (
+                    <div
+                      key={`${item.word}-${item.start}-${index}`}
+                      className={`flex items-start gap-3 p-2 rounded cursor-pointer transition-colors ${
+                        isCurrent ? 'bg-primary/20 border-l-2 border-primary' : 'hover:bg-white/5'
+                      }`}
+                      onClick={() => handleWordClick(item.start)}
+                    >
+                      <span className="text-blue-400 text-sm font-mono min-w-[40px]">
+                        {timestamp}
+                      </span>
+                      <span className={`text-white/90 text-sm leading-relaxed ${
+                        isHighlighted ? 'bg-yellow-400/30 px-1 rounded' : ''
+                      }`}>
+                        {item.word}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </ScrollArea>
+
+            {searchTerm && (
+              <div className="mt-2 text-xs text-white/60 border-t border-white/10 pt-2">
+                {filteredTranscript.length} result{filteredTranscript.length !== 1 ? 's' : ''}
+              </div>
             )}
           </div>
-
-          {summary ? (
-            <div className="prose prose-invert max-w-none">
-              <div className="bg-video-surface/50 p-6 rounded-lg border border-primary/20">
-                <pre className="whitespace-pre-wrap font-sans text-foreground leading-relaxed">
-                  {summary}
-                </pre>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              Click "Generate Summary" to create an AI-powered summary of your video content
-            </div>
-          )}
-        </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };
